@@ -34,7 +34,7 @@ class _NoteseditviewState extends State<Noteseditview>
   Note? _note;
   final List<Color> colors = [
     // ignore: prefer_const_constructors
-    Color.fromARGB(0, 255, 255, 255),
+    Color.fromARGB(254, 255, 255, 255),
     const Color.fromARGB(255, 0, 0, 0),
     const Color.fromARGB(255, 255, 255, 255),
     const Color.fromARGB(255, 76, 175, 80),
