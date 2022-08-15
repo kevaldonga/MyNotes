@@ -96,6 +96,6 @@ class Note {
 
   @override
   String toString() {
-    return " id = $id, title = $_title, contents = $_contents";
+    return "id = $id || title = $_title || contents = $_contents || pinned = $pinned || titlecolor = ${gettitlecolor?.value} || contentcolor = ${getcontentcolor?.value} || backgroundcolor = ${getbackgroundcolor?.value}\n";
   }
 }
