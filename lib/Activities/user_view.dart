@@ -1,12 +1,11 @@
 import 'dart:developer' show log;
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_notes/Activities/noteseditView.dart';
+import 'package:sqflite/sqflite.dart';
 import '../essential classes/sqllite.dart';
 import '../reusable%20widgets/create_alertdialog.dart';
 import 'package:substring_highlight/substring_highlight.dart';
@@ -53,19 +52,15 @@ class _UserviewState extends State<Userview> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    super.initState();
     WidgetsBinding.instance.addObserver(this);
     auth = FirebaseAuth.instance;
-    isemailVerified = FirebaseAuth.instance.currentUser?.emailVerified ?? false;
     init();
-    if (notes.isEmpty) {
-      return;
-    }
-    if (!isemailVerified) {
-      SQL.insert(db, notes);
-    } else {
-      download();
-    }
-    super.initState();
+    isemailVerified = FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+    // if (!isemailVerified) {
+    //   SQL.insert(db, notes);
+    // } else {
+    // }
   }
 
   @override
@@ -477,6 +472,8 @@ class _UserviewState extends State<Userview> with WidgetsBindingObserver {
                                           context,
                                           "signed out !!",
                                           "You are signed out as " + email);
+                                      log("database ${db.toString()} has been closed");
+                                      await db.close();
                                       Navigator.of(context)
                                           .pushNamedAndRemoveUntil(
                                               "/Homepage/", (_) => false);
@@ -1019,6 +1016,7 @@ class _UserviewState extends State<Userview> with WidgetsBindingObserver {
   }
 
   void deleteSelectedNotes(BuildContext context) {
+    SQL.delete(db, selectedNotes);
     if (isAllselected) {
       setState(() {
         notes = [];
@@ -1083,12 +1081,18 @@ class _UserviewState extends State<Userview> with WidgetsBindingObserver {
               : 0);
     });
   }
-  
-  void init() async {
-    db = await SQL.sqlinit();
-  }
-  
+
   void download() async {
     notes = await SQL.downloadData(db);
+  }
+
+  void init() async {
+    db = await SQL
+        .sqlinit(auth.currentUser?.email ?? "")
+        .then((value) async {
+      notes = await SQL.downloadData(value);
+      return value;
+    });
+    setState(() {});
   }
 }

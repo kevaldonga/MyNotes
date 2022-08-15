@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class Note {
   final String uid;
-  final String id;
+  late String id;
   String? _title;
   String? _contents;
   bool _selected = false;
@@ -13,7 +13,7 @@ class Note {
     "title": const Color.fromARGB(255, 0, 0, 0),
     "content": const Color.fromARGB(255, 0, 0, 0)
   };
-  final DateTime _createdAt;
+  late DateTime _createdAt;
   DateTime? modifiedAt;
 
   bool get isPinned => pinned;
@@ -39,7 +39,7 @@ class Note {
   Color? get getcontentcolor => _colors["content"];
 
   Color? get getbackgroundcolor => _colors["background"];
-  
+
   set setSelected(bool selected) => _selected = selected;
 
   set setTitle(String title) => _title = title;
@@ -66,21 +66,36 @@ class Note {
         modifiedAt = modifiedAt ?? DateTime.now(),
         id = id ?? Random().nextDouble().toString();
 
-  Map<String,Object?> toMap(){
+  Note.fromMap(Map<String, Object?> map, this.uid) {
+    id = map["id"].toString();
+    _title = map["title"].toString();
+    _contents = map["contents"].toString();
+    pinned = map["pinned"].toString() == "1";
+    titlecolor = Color(int.parse(map["titlecolor"].toString()));
+    contentcolor = Color(int.parse(map["contentscolor"].toString()));
+    backgroundcolor = Color(int.parse(map["backgroundcolor"].toString()));
+    _createdAt = DateTime.parse(map["created"].toString());
+    modifiedAt = DateTime.parse(map["modified"].toString());
+  }
+
+  Map<String, Object?> toMap() {
     return {
-      "id":id,
-      "title":_title ?? "",
-      "contents":_contents ?? "",
-      "pinned":pinned ? "1" : "0",
-      "titlecolor":gettitlecolor?.value,
-      "contentscolor":getcontentcolor?.value,
-      "backgroundcolor":getbackgroundcolor?.value,
+      "id": id,
+      "title": _title ?? "",
+      "contents": _contents ?? "",
+      "pinned": pinned ? "1" : "0",
+      "titlecolor": gettitlecolor?.value,
+      "contentscolor": getcontentcolor?.value,
+      "backgroundcolor": getbackgroundcolor?.value,
       "created": _createdAt.toString(),
-      "modified": modifiedAt==null ? DateTime.now().toString() : modifiedAt!.toString(),
+      "modified": modifiedAt == null
+          ? DateTime.now().toString()
+          : modifiedAt!.toString(),
     };
   }
+
   @override
-  String toString(){
+  String toString() {
     return " id = $id, title = $_title, contents = $_contents";
   }
 }

@@ -3,7 +3,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 Future<bool> createAlertDialogBox(
     BuildContext context, String title, String des) {
-  EasyLoading.dismiss();
+  if (EasyLoading.isShow) {
+    EasyLoading.dismiss();
+  }
   var alert = AlertDialog(
     title: Text(title),
     content: Text(des),

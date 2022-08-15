@@ -240,7 +240,7 @@ class _NoteseditviewState extends State<Noteseditview>
                         color: Theme.of(context).dialogBackgroundColor,
                         elevation: 10,
                         onSelected: (val) async {
-                            FocusScope.of(context).unfocus();
+                          FocusScope.of(context).unfocus();
                           switch (val) {
                             case Info.delete:
                               _note = Note(
@@ -594,7 +594,9 @@ class _NoteseditviewState extends State<Noteseditview>
   }
 
   void _backpressed() async {
-    saveNote();
+    if (!isupdated) {
+      saveNote();
+    }
     if (_note?.getTitle == "" && _note?.getContents == "") {
       if (await confirmation(
           context, "You will lose this note as it has no contents !!")) {
@@ -627,7 +629,7 @@ class _NoteseditviewState extends State<Noteseditview>
     if (_note?.getTitle == "" && _note?.getContents == "") {
       return;
     }
-    SQL.insert(db, [_note]);
+    SQL.insert(db,[_note]);
   }
 
   void updateNote() {
@@ -638,7 +640,7 @@ class _NoteseditviewState extends State<Noteseditview>
       _note?.setPinned = isPinned;
       isupdated = true;
     });
-    SQL.update(db, _note);
+    SQL.update(db,_note);
   }
 
   int getselectedcolor() {
@@ -705,10 +707,10 @@ class _NoteseditviewState extends State<Noteseditview>
     if (_note == null) {
       return;
     }
-    SQL.delete(db, [_note]);
+    SQL.delete(db,[_note]);
   }
-
-  void init() async {
-    db = await SQL.sqlinit();
+  
+  void init() async{
+    db = await SQL.sqlinit(FirebaseAuth.instance.currentUser?.email ?? "");
   }
 }
