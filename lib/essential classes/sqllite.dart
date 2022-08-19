@@ -8,7 +8,6 @@ import 'package:path/path.dart';
 import 'Note.dart';
 
 class SQL {
-  late Database db;
   static Future<Database> sqlinit(String email) async {
     var date = DateFormat("dd-MM-yyyy hh:mm a").format(DateTime.now());
     Database db =
