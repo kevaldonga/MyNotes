@@ -2,7 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:my_notes/essential%20classes/sqllite.dart';
 import './constants/Routes.dart';
 import './Activities/loginView.dart';
 import './Activities/registerView.dart';
