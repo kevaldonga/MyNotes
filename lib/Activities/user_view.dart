@@ -32,11 +32,12 @@ enum Sortitems {
   pinned,
 }
 
-class _UserviewState extends State<Userview>{
+class _UserviewState extends State<Userview> {
   final icons = [
     Icons.check_box_outlined,
     Icons.sort,
   ];
+  Sortitems currentsort = Sortitems.alphabet;
   List<Note> notes = [];
   List<Note> searchNotes = [];
   List<Note> selectedNotes = [];
@@ -100,8 +101,23 @@ class _UserviewState extends State<Userview>{
     );
   }
 
-  void bringpinnedForward() {
+  void bringpinnedForward(BuildContext context) {
     if (isAllPinned(notes)) {
+      return;
+    }
+    bool startpinned = false;
+    bool isok = true;
+    for (int i = 0; i < notes.length; i++) {
+      if (!notes[i].isPinned && !startpinned) {
+        startpinned = true;
+        continue;
+      }
+      if (startpinned && notes[i].isPinned) {
+        isok = false;
+        break;
+      }
+    }
+    if (isok) {
       return;
     }
     setState(() {
@@ -179,340 +195,328 @@ class _UserviewState extends State<Userview>{
 
   PopupMenuButton<Popupitem> accountpopup(BuildContext context) {
     return PopupMenuButton(
-            icon: CircleAvatar(
-              child: getUserImage(),
+      icon: CircleAvatar(
+        child: getUserImage(),
+      ),
+      itemBuilder: (context) {
+        return [
+          // refresh
+          PopupMenuItem(
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.refresh,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  "Refresh",
+                  style: TextStyle(fontFamily: "Quicksand"),
+                ),
+              ],
             ),
-            itemBuilder: (context) {
-              return [
-                // refresh
-                PopupMenuItem(
-                  child: Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.refresh,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Text(
-                        "Refresh",
-                        style: TextStyle(fontFamily: "Quicksand"),
-                      ),
-                    ],
+            enabled: true,
+            value: Popupitem.refresh,
+          ),
+          // verified
+          PopupMenuItem(
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.verified,
+                    color: isemailVerified ? Colors.green : Colors.black87,
                   ),
-                  enabled: true,
-                  value: Popupitem.refresh,
                 ),
-                // verified
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.verified,
-                          color:
-                              isemailVerified ? Colors.green : Colors.black87,
-                        ),
-                      ),
-                      Text(isemailVerified ? "Verified" : "Not verified",
-                          style: const TextStyle(fontFamily: "Quicksand")),
-                    ],
+                Text(isemailVerified ? "Verified" : "Not verified",
+                    style: const TextStyle(fontFamily: "Quicksand")),
+              ],
+            ),
+            enabled: true,
+            value: Popupitem.verify,
+          ),
+          // change email
+          PopupMenuItem(
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.alternate_email,
+                    color: Colors.black87,
                   ),
-                  enabled: true,
-                  value: Popupitem.verify,
                 ),
-                // change email
-                PopupMenuItem(
-                  child: Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.alternate_email,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        "Change email",
-                        style: TextStyle(fontFamily: "Quicksand"),
-                      ),
-                    ],
+                Text(
+                  "Change email",
+                  style: TextStyle(fontFamily: "Quicksand"),
+                ),
+              ],
+            ),
+            enabled: true,
+            value: Popupitem.changeEmail,
+          ),
+          // chnage password
+          PopupMenuItem(
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.password,
+                    color: Colors.black87,
                   ),
-                  enabled: true,
-                  value: Popupitem.changeEmail,
                 ),
-                // chnage password
-                PopupMenuItem(
-                  child: Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.password,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        "Change passcode",
-                        style: TextStyle(fontFamily: "Quicksand"),
-                      ),
-                    ],
+                Text(
+                  "Change passcode",
+                  style: TextStyle(fontFamily: "Quicksand"),
+                ),
+              ],
+            ),
+            enabled: true,
+            value: Popupitem.changePasscode,
+          ),
+          // log out
+          PopupMenuItem(
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.logout,
+                    color: Colors.black87,
                   ),
-                  enabled: true,
-                  value: Popupitem.changePasscode,
                 ),
-                // log out
-                PopupMenuItem(
-                  child: Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Icon(
-                          Icons.logout,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        "Log out",
-                        style: TextStyle(fontFamily: "Quicksand"),
-                      ),
-                    ],
-                  ),
-                  enabled: true,
-                  value: Popupitem.logOut,
+                Text(
+                  "Log out",
+                  style: TextStyle(fontFamily: "Quicksand"),
                 ),
-              ];
-            },
-            onSelected: (value) async {
-              _searchFocusNode.unfocus();
-              switch (value) {
-                case Popupitem.verify:
-                  {
-                    if (auth.currentUser!.emailVerified) {
-                      createAlertDialogBox(context, "Already verified",
-                          "You are already verified !!");
-                      return;
-                    }
-                    String email = auth.currentUser?.email ?? "null";
-                    final isConfirmed = await createAlertDialogBox(
-                        context,
-                        "Confirm",
-                        "Email verification will be sent your email id - " +
-                            email);
-                    if (isConfirmed) {
-                      EasyLoading.show(status: "sending");
-                      var error = false;
-                      try {
-                        await auth.currentUser?.sendEmailVerification();
-                      } on FirebaseAuthException catch (e) {
-                        error = true;
-                        createAlertDialogBox(
-                            context, "fatal error occurred", e.code);
-                      }
-                      if (!error) {
-                        createAlertDialogBox(
-                            context,
-                            "Sent",
-                            "Email verification to your email id " +
-                                email +
-                                " has been send !!");
-                      }
-                    }
-                    break;
-                  }
-
-                case Popupitem.changeEmail:
-                  {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("change email"),
-                            elevation: 10,
-                            content: TextField(
-                              autofocus: true,
-                              enableSuggestions: true,
-                              autocorrect: false,
-                              keyboardType: TextInputType.emailAddress,
-                              onChanged: (value) {
-                                setState(() {
-                                  newEmail = value;
-                                });
-                              },
-                              decoration: const InputDecoration(
-                                labelText: "New email",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () async {
-                                  if (newEmail.isEmpty) {
-                                    createAlertDialogBox(context, "empty",
-                                        "given email is empty !!");
-                                    return;
-                                  }
-                                  if (!EmailValidator.validate(newEmail)) {
-                                    createAlertDialogBox(context, "invalid",
-                                        "Given email is in invalid format !!");
-                                    return;
-                                  }
-                                  EasyLoading.show(status: "changing");
-                                  await auth.currentUser
-                                      ?.updateEmail(newEmail)
-                                      .whenComplete(() {
-                                    createAlertDialogBox(
-                                        context,
-                                        "updated",
-                                        "Your email id has been updated to - " +
-                                            newEmail);
-                                  });
-                                },
-                                child: const Center(child: Text("change")),
-                              ),
-                            ],
-                          );
-                        });
-                    break;
-                  }
-
-                case Popupitem.changePasscode:
-                  {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("change password"),
-                            content: TextField(
-                              autocorrect: false,
-                              obscureText: true,
-                              autofocus: true,
-                              enableSuggestions: false,
-                              onChanged: (value) {
-                                setState(() {
-                                  password = value;
-                                });
-                              },
-                              decoration: const InputDecoration(
-                                labelText: "New password",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            elevation: 10,
-                            actions: [
-                              TextButton(
-                                onPressed: (() async {
-                                  if (password.isEmpty) {
-                                    createAlertDialogBox(context, "too short",
-                                        "given password is shorter than 8 characters");
-                                    return;
-                                  }
-                                  if (!isemailVerified) {
-                                    createAlertDialogBox(
-                                        context,
-                                        "Not verified",
-                                        "You are not verified !!");
-                                  }
-                                  await auth.currentUser
-                                      ?.updatePassword(password)
-                                      .whenComplete(() {
-                                    createAlertDialogBox(context, "updated",
-                                        "your password has been updated !!");
-                                  });
-                                }),
-                                child: const Center(child: Text("change")),
-                              ),
-                            ],
-                          );
-                        });
-                    break;
-                  }
-
-                case Popupitem.refresh:
-                  {
-                    download();
-                    await auth.currentUser?.reload();
-                    isemailVerified =
-                        auth.currentUser?.emailVerified ?? false;
-                    break;
-                  }
-
-                case Popupitem.logOut:
-                  {
-                    String email = auth.currentUser?.email ?? "null";
-                    showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("Are you sure ?"),
-                            content: const Text(
-                                "Are you sure you want to Log out ?"),
-                            actions: [
-                              TextButton(
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  var error = false;
-                                  EasyLoading.show(status: "Signing out");
-                                  try {
-                                    await auth.signOut();
-                                    await GoogleSignIn().signOut();
-                                  } on FirebaseException catch (e) {
-                                    error = true;
-                                    createAlertDialogBox(context,
-                                        "fatal error occurred", e.code);
-                                  }
-                                  if (!error) {
-                                    await createAlertDialogBox(
-                                        context,
-                                        "signed out !!",
-                                        "You are signed out as " + email);
-                                    log("database ${db.toString()} has been closed");
-                                    await db.close();
-                                    Navigator.of(context)
-                                        .pushNamedAndRemoveUntil(
-                                            "/Homepage/", (_) => false);
-                                  }
-                                },
-                                child: const Text("Yes"),
-                              ),
-                              TextButton(
-                                  style: ButtonStyle(
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("cancel")),
-                            ],
-                          );
-                        });
-                    break;
-                  }
-                default:
-                  break;
+              ],
+            ),
+            enabled: true,
+            value: Popupitem.logOut,
+          ),
+        ];
+      },
+      onSelected: (value) async {
+        _searchFocusNode.unfocus();
+        switch (value) {
+          case Popupitem.verify:
+            {
+              if (auth.currentUser!.emailVerified) {
+                createAlertDialogBox(
+                    context, "Already verified", "You are already verified !!");
+                return;
               }
-            },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            color: Theme.of(context).dialogBackgroundColor,
-            elevation: 10,
-          );
+              String email = auth.currentUser?.email ?? "null";
+              final isConfirmed = await createAlertDialogBox(context, "Confirm",
+                  "Email verification will be sent your email id - " + email);
+              if (isConfirmed) {
+                EasyLoading.show(status: "sending");
+                var error = false;
+                try {
+                  await auth.currentUser?.sendEmailVerification();
+                } on FirebaseAuthException catch (e) {
+                  error = true;
+                  createAlertDialogBox(context, "fatal error occurred", e.code);
+                }
+                if (!error) {
+                  createAlertDialogBox(
+                      context,
+                      "Sent",
+                      "Email verification to your email id " +
+                          email +
+                          " has been send !!");
+                }
+              }
+              break;
+            }
+
+          case Popupitem.changeEmail:
+            {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("change email"),
+                      elevation: 10,
+                      content: TextField(
+                        autofocus: true,
+                        enableSuggestions: true,
+                        autocorrect: false,
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: (value) {
+                          setState(() {
+                            newEmail = value;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          labelText: "New email",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () async {
+                            if (newEmail.isEmpty) {
+                              createAlertDialogBox(
+                                  context, "empty", "given email is empty !!");
+                              return;
+                            }
+                            if (!EmailValidator.validate(newEmail)) {
+                              createAlertDialogBox(context, "invalid",
+                                  "Given email is in invalid format !!");
+                              return;
+                            }
+                            EasyLoading.show(status: "changing");
+                            await auth.currentUser
+                                ?.updateEmail(newEmail)
+                                .whenComplete(() {
+                              createAlertDialogBox(
+                                  context,
+                                  "updated",
+                                  "Your email id has been updated to - " +
+                                      newEmail);
+                            });
+                          },
+                          child: const Center(child: Text("change")),
+                        ),
+                      ],
+                    );
+                  });
+              break;
+            }
+
+          case Popupitem.changePasscode:
+            {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("change password"),
+                      content: TextField(
+                        autocorrect: false,
+                        obscureText: true,
+                        autofocus: true,
+                        enableSuggestions: false,
+                        onChanged: (value) {
+                          setState(() {
+                            password = value;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          labelText: "New password",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      elevation: 10,
+                      actions: [
+                        TextButton(
+                          onPressed: (() async {
+                            if (password.isEmpty) {
+                              createAlertDialogBox(context, "too short",
+                                  "given password is shorter than 8 characters");
+                              return;
+                            }
+                            if (!isemailVerified) {
+                              createAlertDialogBox(context, "Not verified",
+                                  "You are not verified !!");
+                            }
+                            await auth.currentUser
+                                ?.updatePassword(password)
+                                .whenComplete(() {
+                              createAlertDialogBox(context, "updated",
+                                  "your password has been updated !!");
+                            });
+                          }),
+                          child: const Center(child: Text("change")),
+                        ),
+                      ],
+                    );
+                  });
+              break;
+            }
+
+          case Popupitem.refresh:
+            {
+              download();
+              await auth.currentUser?.reload();
+              isemailVerified = auth.currentUser?.emailVerified ?? false;
+              break;
+            }
+
+          case Popupitem.logOut:
+            {
+              String email = auth.currentUser?.email ?? "null";
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Are you sure ?"),
+                      content: const Text("Are you sure you want to Log out ?"),
+                      actions: [
+                        TextButton(
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                          onPressed: () async {
+                            var error = false;
+                            EasyLoading.show(status: "Signing out");
+                            try {
+                              await auth.signOut();
+                              await GoogleSignIn().signOut();
+                            } on FirebaseException catch (e) {
+                              error = true;
+                              createAlertDialogBox(
+                                  context, "fatal error occurred", e.code);
+                            }
+                            if (!error) {
+                              await createAlertDialogBox(
+                                  context,
+                                  "signed out !!",
+                                  "You are signed out as " + email);
+                              log("database ${db.toString()} has been closed");
+                              await db.close();
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  "/Homepage/", (_) => false);
+                            }
+                          },
+                          child: const Text("Yes"),
+                        ),
+                        TextButton(
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("cancel")),
+                      ],
+                    );
+                  });
+              break;
+            }
+          default:
+            break;
+        }
+      },
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      color: Theme.of(context).dialogBackgroundColor,
+      elevation: 10,
+    );
   }
 
   Widget bottomAction(BuildContext context) {
@@ -554,16 +558,25 @@ class _UserviewState extends State<Userview>{
                             PopupMenuItem(
                               value: Sortitems.alphabet,
                               child: Row(
-                                children: const [
+                                children: [
                                   Padding(
-                                    padding:
-                                        EdgeInsets.only(right: 15, left: 5),
+                                    padding: const EdgeInsets.only(
+                                        right: 15, left: 5),
                                     child: Icon(
                                       Icons.abc_rounded,
-                                      color: Colors.black,
+                                      color: currentsort == Sortitems.alphabet
+                                          ? Colors.green
+                                          : Colors.black,
                                     ),
                                   ),
-                                  Text("Alphabet")
+                                  Text(
+                                    "Alphabet",
+                                    style: TextStyle(
+                                      color: currentsort == Sortitems.alphabet
+                                          ? Colors.green
+                                          : Colors.black,
+                                    ),
+                                  )
                                 ],
                               ),
                             ),
@@ -571,16 +584,27 @@ class _UserviewState extends State<Userview>{
                             PopupMenuItem(
                               value: Sortitems.pinned,
                               child: Row(
-                                children: const [
+                                children: [
                                   Padding(
-                                    padding:
-                                        EdgeInsets.only(right: 15, left: 5),
+                                    padding: const EdgeInsets.only(
+                                        right: 15, left: 5),
                                     child: Icon(
-                                      Icons.push_pin_rounded,
-                                      color: Colors.green,
+                                      currentsort == Sortitems.pinned
+                                          ? Icons.push_pin_rounded
+                                          : Icons.push_pin_outlined,
+                                      color: currentsort == Sortitems.pinned
+                                          ? Colors.green
+                                          : Colors.black,
                                     ),
                                   ),
-                                  Text("Pinned"),
+                                  Text(
+                                    "Pinned",
+                                    style: TextStyle(
+                                      color: currentsort == Sortitems.pinned
+                                          ? Colors.green
+                                          : Colors.black,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -588,16 +612,25 @@ class _UserviewState extends State<Userview>{
                             PopupMenuItem(
                               value: Sortitems.time,
                               child: Row(
-                                children: const [
+                                children: [
                                   Padding(
-                                    padding:
-                                        EdgeInsets.only(right: 15, left: 5),
+                                    padding: const EdgeInsets.only(
+                                        right: 15, left: 5),
                                     child: Icon(
                                       Icons.access_time_filled,
-                                      color: Colors.black,
+                                      color: currentsort == Sortitems.time
+                                          ? Colors.green
+                                          : Colors.black,
                                     ),
                                   ),
-                                  Text("time"),
+                                  Text(
+                                    "time",
+                                    style: TextStyle(
+                                      color: currentsort == Sortitems.time
+                                          ? Colors.green
+                                          : Colors.black,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -607,12 +640,15 @@ class _UserviewState extends State<Userview>{
                         onSelected: (value) {
                           switch (value) {
                             case Sortitems.alphabet:
+                              currentsort = Sortitems.alphabet;
                               sortByAlphabets(context);
                               break;
                             case Sortitems.pinned:
-                              bringpinnedForward();
+                              currentsort = Sortitems.pinned;
+                              bringpinnedForward(context);
                               break;
                             case Sortitems.time:
+                              currentsort = Sortitems.time;
                               sortByTime(context);
                               break;
                             default:
@@ -695,7 +731,7 @@ class _UserviewState extends State<Userview>{
           }
           setState(() {
             notes.add(_currentNote!);
-            bringpinnedForward();
+            setcorrespondingSort();
           });
         },
         child: const Icon(
@@ -839,7 +875,7 @@ class _UserviewState extends State<Userview>{
                       }
                       setState(() {
                         notes[indexInNotes] = _currentNote!;
-                        bringpinnedForward();
+                        setcorrespondingSort();
                       });
                       return;
                     }
@@ -1093,5 +1129,19 @@ class _UserviewState extends State<Userview>{
       return value;
     });
     setState(() {});
+  }
+
+  void setcorrespondingSort() {
+    switch (currentsort) {
+      case Sortitems.alphabet:
+        sortByAlphabets(context);
+        break;
+      case Sortitems.time:
+        sortByTime(context);
+        break;
+      case Sortitems.pinned:
+        bringpinnedForward(context);
+        break;
+    }
   }
 }
