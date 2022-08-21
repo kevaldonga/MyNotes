@@ -589,9 +589,7 @@ class _UserviewState extends State<Userview> {
                                     padding: const EdgeInsets.only(
                                         right: 15, left: 5),
                                     child: Icon(
-                                      currentsort == Sortitems.pinned
-                                          ? Icons.push_pin_rounded
-                                          : Icons.push_pin_outlined,
+                                      currentsort == Sortitems.pinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
                                       color: currentsort == Sortitems.pinned
                                           ? Colors.green
                                           : Colors.black,
