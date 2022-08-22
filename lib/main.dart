@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.lightGreen.shade600,
         errorColor: const Color.fromARGB(255, 0, 90, 3),
         brightness: Brightness.light,
-        cardColor: const Color.fromARGB(235, 236, 251, 237),
+        cardColor: const Color.fromARGB(255, 236, 251, 237),
         scaffoldBackgroundColor: const Color.fromARGB(255, 247, 255, 247),
         focusColor: const Color.fromARGB(13, 42, 169, 46),
         highlightColor: const Color.fromARGB(39, 24, 171, 29),

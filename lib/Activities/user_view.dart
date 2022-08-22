@@ -136,10 +136,10 @@ class _UserviewState extends State<Userview> {
   Widget titleitems(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).focusColor.withGreen(80),
+        color: const Color.fromARGB(255, 228, 255, 229),
         borderRadius: BorderRadius.circular(26),
         border: Border.all(
-          color: Theme.of(context).focusColor.withGreen(100).withOpacity(0.15),
+          color: const Color.fromARGB(255, 143, 218, 145),
           width: 1,
         ),
       ),
@@ -589,7 +589,9 @@ class _UserviewState extends State<Userview> {
                                     padding: const EdgeInsets.only(
                                         right: 15, left: 5),
                                     child: Icon(
-                                      currentsort == Sortitems.pinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+                                      currentsort == Sortitems.pinned
+                                          ? Icons.push_pin_rounded
+                                          : Icons.push_pin_outlined,
                                       color: currentsort == Sortitems.pinned
                                           ? Colors.green
                                           : Colors.black,
@@ -748,15 +750,18 @@ class _UserviewState extends State<Userview> {
       return blankBuildView(
           context, "We couldn't find specified term in any of notes");
     }
-    return SliverGrid(
-      delegate: SliverChildBuilderDelegate(
-        ((context, index) {
-          return _noteContainer(context, index);
-        }),
-        childCount: searchtext.isEmpty ? notes.length : searchNotes.length,
-      ),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+    return SliverPadding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
+      sliver: SliverGrid(
+        delegate: SliverChildBuilderDelegate(
+          ((context, index) {
+            return _noteContainer(context, index);
+          }),
+          childCount: searchtext.isEmpty ? notes.length : searchNotes.length,
+        ),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+        ),
       ),
     );
   }
@@ -1122,11 +1127,14 @@ class _UserviewState extends State<Userview> {
   }
 
   void init() async {
+    EasyLoading.show(status: "getting notes",maskType: EasyLoadingMaskType.black);
     db = await SQL.sqlinit(auth.currentUser?.email ?? "").then((value) async {
       notes = await SQL.downloadData(value);
       return value;
     });
     setState(() {});
+    setcorrespondingSort();
+    EasyLoading.dismiss();
   }
 
   void setcorrespondingSort() {
