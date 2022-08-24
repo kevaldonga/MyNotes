@@ -32,6 +32,11 @@ class _NoteseditviewState extends State<Noteseditview>
   late final SolidController _solidController;
   final List<String> bottomsheettext = ["background", "title", "contents"];
   Note? _note;
+  final Map<String, Color> pickedcolor = {
+    "background": Colors.white,
+    "title": Colors.black,
+    "content": Colors.black
+  };
   final List<Color> colors = [
     // ignore: prefer_const_constructors
     Color.fromARGB(254, 255, 255, 255),
@@ -168,7 +173,7 @@ class _NoteseditviewState extends State<Noteseditview>
                           ),
                           child: IconButton(
                             onPressed: () {
-                              if(isupdated){
+                              if (isupdated) {
                                 log("note is already been saved");
                                 return;
                               }
@@ -253,102 +258,99 @@ class _NoteseditviewState extends State<Noteseditview>
 
   PopupMenuButton<Info> noteops(Size size) {
     return PopupMenuButton(
-                      icon: Icon(
-                        Icons.more_vert,
-                        color: _backgroundcolor == Colors.white
-                            ? Colors.black87
-                            : Colors.white,
-                      ),
-                      itemBuilder: (context) {
-                        return [
-                          // pin
-                          PopupMenuItem(
-                            child: SizedBox(
-                              width: size.width * 0.3,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: (isPinned)
-                                        ? const Icon(
-                                            Icons.push_pin_rounded,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(Icons.push_pin_outlined),
-                                  ),
-                                  Text((isPinned) ? "unpin" : "pin"),
-                                ],
-                              ),
-                            ),
-                            value: Info.pinned,
-                          ),
-                          // delete
-                          PopupMenuItem(
-                            child: Row(
-                              children: const [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.redAccent,
-                                  ),
-                                ),
-                                Text("delete"),
-                              ],
-                            ),
-                            value: Info.delete,
-                          ),
-                          // details
-                          PopupMenuItem(
-                            child: Row(
-                              children: const [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Icon(Icons.edit_note_rounded),
-                                ),
-                                Text("style"),
-                              ],
-                            ),
-                            value: Info.style,
-                          ),
-                        ];
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      color: Theme.of(context).dialogBackgroundColor,
-                      elevation: 10,
-                      onSelected: (val) async {
-                        FocusScope.of(context).unfocus();
-                        switch (val) {
-                          case Info.delete:
-                            _note = Note(
-                                title: "",
-                                contents: "",
-                                uid: "null",
-                                modifiedAt: DateTime.now());
-                            if (await confirmation(context,
-                                "Are you sure you want to delete this note ?")) {
-                              Navigator.of(context).pop(_note);
-                            }
-                            break;
-                          case Info.pinned:
-                            setState(() {
-                              isPinned = !isPinned;
-                              if(isPinned == _note?.isPinned){
-                                isupdated = true;
-                              }
-                              else{
-                                isupdated = false;
-                              }
-                            });
-                            break;
-                          case Info.style:
-                            _solidController.show();
-                            break;
-                        }
-                      },
-                    );
+      icon: Icon(
+        Icons.more_vert,
+        color: _backgroundcolor == Colors.white ? Colors.black87 : Colors.white,
+      ),
+      itemBuilder: (context) {
+        return [
+          // pin
+          PopupMenuItem(
+            child: SizedBox(
+              width: size.width * 0.3,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: (isPinned)
+                        ? const Icon(
+                            Icons.push_pin_rounded,
+                            color: Colors.green,
+                          )
+                        : const Icon(Icons.push_pin_outlined),
+                  ),
+                  Text((isPinned) ? "unpin" : "pin"),
+                ],
+              ),
+            ),
+            value: Info.pinned,
+          ),
+          // delete
+          PopupMenuItem(
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.redAccent,
+                  ),
+                ),
+                Text("delete"),
+              ],
+            ),
+            value: Info.delete,
+          ),
+          // details
+          PopupMenuItem(
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(Icons.edit_note_rounded),
+                ),
+                Text("style"),
+              ],
+            ),
+            value: Info.style,
+          ),
+        ];
+      },
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      color: Theme.of(context).dialogBackgroundColor,
+      elevation: 10,
+      onSelected: (val) async {
+        FocusScope.of(context).unfocus();
+        switch (val) {
+          case Info.delete:
+            _note = Note(
+                title: "",
+                contents: "",
+                uid: "null",
+                modifiedAt: DateTime.now());
+            if (await confirmation(
+                context, "Are you sure you want to delete this note ?")) {
+              Navigator.of(context).pop(_note);
+            }
+            break;
+          case Info.pinned:
+            setState(() {
+              isPinned = !isPinned;
+              if (isPinned == _note?.isPinned) {
+                isupdated = true;
+              } else {
+                isupdated = false;
+              }
+            });
+            break;
+          case Info.style:
+            _solidController.show();
+            break;
+        }
+      },
+    );
   }
 
   SolidBottomSheet bottomsheet(BuildContext context) {
@@ -523,18 +525,21 @@ class _NoteseditviewState extends State<Noteseditview>
                 color = color?.withOpacity(1);
                 sheetState(() {
                   colors[0] = color ?? colors[getselectedcolor()];
+                  switch (selectedIndex) {
+                    case 0:
+                      pickedcolor["background"] = colors[0];
+                      _backgroundcolor = color ?? Colors.white;
+                      break;
+                    case 1:
+                      pickedcolor["title"] = colors[0];
+                      _titlecolor = color ?? Colors.black;
+                      break;
+                    case 2:
+                      pickedcolor["content"] = colors[0];
+                      _contentcolor = color ?? Colors.black;
+                      break;
+                  }
                 });
-                switch (selectedIndex) {
-                  case 0:
-                    _backgroundcolor = color ?? Colors.white;
-                    break;
-                  case 1:
-                    _titlecolor = color ?? Colors.black;
-                    break;
-                  case 2:
-                    _contentcolor = color ?? Colors.black;
-                    break;
-                }
               }
             },
             child: Container(
@@ -542,7 +547,7 @@ class _NoteseditviewState extends State<Noteseditview>
               width: MediaQuery.of(context).size.width * 0.12,
               height: MediaQuery.of(context).size.width * 0.12,
               decoration: BoxDecoration(
-                color: colors[index],
+                color: index != 0 ? colors[index] : getpickedcolor(),
                 shape: BoxShape.circle,
                 border: getselectedcolor() == index
                     ? Border.all(color: Colors.greenAccent, width: 3)
@@ -673,7 +678,7 @@ class _NoteseditviewState extends State<Noteseditview>
   }
 
   Future<Color?> colorpicker(BuildContext context) {
-    Color _currentcolor = colors[getselectedcolor()];
+    Color _currentcolor = getpickedcolor();
     return showDialog<Color>(
         barrierDismissible: false,
         context: context,
@@ -690,7 +695,7 @@ class _NoteseditviewState extends State<Noteseditview>
             content: SingleChildScrollView(
               child: ColorPicker(
                 labelTypes: const [ColorLabelType.hex, ColorLabelType.rgb],
-                pickerColor: colors[0],
+                pickerColor: getpickedcolor(),
                 onColorChanged: (value) {
                   _currentcolor = value;
                 },
@@ -729,5 +734,16 @@ class _NoteseditviewState extends State<Noteseditview>
 
   void init() async {
     db = await SQL.sqlinit(FirebaseAuth.instance.currentUser?.email ?? "");
+  }
+
+  getpickedcolor() {
+    switch (selectedIndex) {
+      case 0:
+        return pickedcolor["background"];
+      case 1:
+        return pickedcolor["title"];
+      case 2:
+        return pickedcolor["content"];
+    }
   }
 }
