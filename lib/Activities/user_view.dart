@@ -1068,6 +1068,7 @@ class _UserviewState extends State<Userview> {
       for (int i = 0; i < selectedNotes.length; i++) {
         notes[notes.indexOf(selectedNotes[i])].setSelected = false;
         notes.remove(selectedNotes[i]);
+        if(searchtext.isNotEmpty) searchNotes.remove(selectedNotes[i]);
       }
       selectedNotes = [];
     });
