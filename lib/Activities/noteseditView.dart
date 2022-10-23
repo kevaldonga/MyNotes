@@ -16,7 +16,7 @@ class Noteseditview extends StatefulWidget {
   Noteseditview.getNote({Key? key, this.note}) : super(key: key);
 
   @override
-  State<Noteseditview> createState() => _NoteseditviewState(note);
+  State<Noteseditview> createState() => _NoteseditviewState();
 }
 
 enum Info {
@@ -31,7 +31,6 @@ class _NoteseditviewState extends State<Noteseditview>
   late final TextEditingController _content;
   late final SolidController _solidController;
   final List<String> bottomsheettext = ["background", "title", "contents"];
-  Note? _note;
   final Map<String, Color> pickedcolor = {
     "background": Colors.white,
     "title": Colors.black,
@@ -57,7 +56,7 @@ class _NoteseditviewState extends State<Noteseditview>
   bool isupdated = true;
   late Database db;
 
-  _NoteseditviewState(this._note);
+  _NoteseditviewState();
 
   @override
   void initState() {
@@ -65,12 +64,12 @@ class _NoteseditviewState extends State<Noteseditview>
     WidgetsBinding.instance.addObserver(this);
     init();
     setState(() {
-      isPinned = _note?.isPinned ?? false;
+      isPinned = widget.note?.isPinned ?? false;
     });
-    if (_note != null) {
-      _backgroundcolor = _note?.getbackgroundcolor ?? Colors.white;
-      _titlecolor = _note?.gettitlecolor ?? Colors.black;
-      _contentcolor = _note?.getcontentcolor ?? Colors.black;
+    if (widget.note != null) {
+      _backgroundcolor = widget.note?.getbackgroundcolor ?? Colors.white;
+      _titlecolor = widget.note?.gettitlecolor ?? Colors.black;
+      _contentcolor = widget.note?.getcontentcolor ?? Colors.black;
     } else {
       _backgroundcolor = const Color.fromARGB(255, 255, 255, 255);
       _titlecolor = const Color.fromARGB(255, 0, 0, 0);
@@ -79,11 +78,11 @@ class _NoteseditviewState extends State<Noteseditview>
     _solidController = SolidController();
     _title = TextEditingController();
     _content = TextEditingController();
-    _title.text = _note?.getTitle ?? "";
-    _content.text = _note?.getContents ?? "";
+    _title.text = widget.note?.getTitle ?? "";
+    _content.text = widget.note?.getContents ?? "";
     _title.addListener(() {
       setState(() {
-        if (_title.text == _note?.getTitle) {
+        if (_title.text == widget.note?.getTitle) {
           isupdated = true;
         } else {
           isupdated = false;
@@ -92,7 +91,7 @@ class _NoteseditviewState extends State<Noteseditview>
     });
     _content.addListener(() {
       setState(() {
-        if (_content.text == _note?.getContents) {
+        if (_content.text == widget.note?.getContents) {
           isupdated = true;
         } else {
           isupdated = false;
@@ -130,6 +129,7 @@ class _NoteseditviewState extends State<Noteseditview>
       onWillPop: () async {
         FocusScope.of(ctx).unfocus();
         if (_solidController.isOpened) _solidController.hide();
+        _backpressed();
         return false;
       },
       child: Scaffold(
@@ -187,7 +187,7 @@ class _NoteseditviewState extends State<Noteseditview>
                   ),
                 ),
                 Hero(
-                  tag: _note ?? Tags.Default,
+                  tag: widget.note ?? Tags.Default,
                   child: Container(
                     height: size.height * 0.77,
                     padding: EdgeInsets.only(
@@ -325,20 +325,20 @@ class _NoteseditviewState extends State<Noteseditview>
         FocusScope.of(context).unfocus();
         switch (val) {
           case Info.delete:
-            _note = Note(
+            widget.note = Note(
                 title: "",
                 contents: "",
                 uid: "null",
                 modifiedAt: DateTime.now());
             if (await confirmation(
                 context, "Are you sure you want to delete this note ?")) {
-              Navigator.of(context).pop(_note);
+              Navigator.of(context).pop(widget.note);
             }
             break;
           case Info.pinned:
             setState(() {
               isPinned = !isPinned;
-              if (isPinned == _note?.isPinned) {
+              if (isPinned == widget.note?.isPinned) {
                 isupdated = true;
               } else {
                 isupdated = false;
@@ -355,7 +355,6 @@ class _NoteseditviewState extends State<Noteseditview>
 
   SolidBottomSheet bottomsheet(BuildContext context) {
     return SolidBottomSheet(
-      autoSwiped: true,
       canUserSwipe: true,
       elevation: 0,
       maxHeight: MediaQuery.of(context).size.height * 0.3,
@@ -368,7 +367,7 @@ class _NoteseditviewState extends State<Noteseditview>
               Text(
                 "last modified at " +
                     DateFormat("dd-MM-yyyy hh:mm a").format(
-                      _note?.getModifiedAt ?? DateTime.now(),
+                      widget.note?.getModifiedAt ?? DateTime.now(),
                     ),
                 style: const TextStyle(
                   fontSize: 15,
@@ -387,15 +386,15 @@ class _NoteseditviewState extends State<Noteseditview>
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
-                      if (_backgroundcolor == _note?.getbackgroundcolor &&
-                          _titlecolor == _note?.gettitlecolor &&
-                          _contentcolor == _note?.getcontentcolor) {
+                      if (_backgroundcolor == widget.note?.getbackgroundcolor &&
+                          _titlecolor == widget.note?.gettitlecolor &&
+                          _contentcolor == widget.note?.getcontentcolor) {
                         isupdated = true;
                         return;
                       }
-                      _note?.backgroundcolor = _backgroundcolor;
-                      _note?.titlecolor = _titlecolor;
-                      _note?.contentcolor = _contentcolor;
+                      widget.note?.backgroundcolor = _backgroundcolor;
+                      widget.note?.titlecolor = _titlecolor;
+                      widget.note?.contentcolor = _contentcolor;
                       isupdated = false;
                     });
                   },
@@ -441,7 +440,7 @@ class _NoteseditviewState extends State<Noteseditview>
           child: Text(
             "created at " +
                 DateFormat("dd-MM-yyyy hh:mm a").format(
-                  _note?.getCreatedAt ?? DateTime.now(),
+                  widget.note?.getCreatedAt ?? DateTime.now(),
                 ),
             style: const TextStyle(
               fontSize: 15,
@@ -521,6 +520,7 @@ class _NoteseditviewState extends State<Noteseditview>
                 }
               });
               if (index == 0) {
+                FocusScope.of(context).unfocus();
                 Color? color = await colorpicker(context);
                 color = color?.withOpacity(1);
                 sheetState(() {
@@ -618,51 +618,51 @@ class _NoteseditviewState extends State<Noteseditview>
     if (!isupdated) {
       saveNote();
     }
-    if (_note?.getTitle == "" && _note?.getContents == "") {
+    if (widget.note?.getTitle == "" && widget.note?.getContents == "") {
       if (await confirmation(
           context, "You will lose this note as it has no contents !!")) {
         deleteNote();
-        Navigator.of(context).pop(_note);
+        Navigator.of(context).pop(widget.note);
       }
     } else {
-      Navigator.of(context).pop(_note);
+      Navigator.of(context).pop(widget.note);
     }
   }
 
   void saveNote() {
-    if (_note != null) {
-      log(_note?.getCreatedAt.toString() ?? "nice");
+    if (widget.note != null) {
+      log(widget.note?.getCreatedAt.toString() ?? "nice");
       updateNote();
       return;
     }
     setState(() {
-      _note = Note(
+      widget.note = Note(
         uid: FirebaseAuth.instance.currentUser?.uid ?? "12345",
         title: _title.text,
         contents: _content.text,
         modifiedAt: DateTime.now(),
       );
       isupdated = true;
-      _note?.setPinned = isPinned;
-      _note?.titlecolor = _titlecolor;
-      _note?.contentcolor = _contentcolor;
-      _note?.backgroundcolor = _backgroundcolor;
+      widget.note?.setPinned = isPinned;
+      widget.note?.titlecolor = _titlecolor;
+      widget.note?.contentcolor = _contentcolor;
+      widget.note?.backgroundcolor = _backgroundcolor;
     });
-    if (_note?.getTitle == "" && _note?.getContents == "") {
+    if (widget.note?.getTitle == "" && widget.note?.getContents == "") {
       return;
     }
-    SQL.insert(db, [_note]);
+    SQL.insert(db, [widget.note]);
   }
 
   void updateNote() {
     setState(() {
-      _note?.setTitle = _title.text;
-      _note?.setContents = _content.text;
-      _note?.setModifiedAt = DateTime.now();
-      _note?.setPinned = isPinned;
+      widget.note?.setTitle = _title.text;
+      widget.note?.setContents = _content.text;
+      widget.note?.setModifiedAt = DateTime.now();
+      widget.note?.setPinned = isPinned;
       isupdated = true;
     });
-    SQL.update(db, _note);
+    SQL.update(db, widget.note);
   }
 
   int getselectedcolor() {
@@ -726,10 +726,10 @@ class _NoteseditviewState extends State<Noteseditview>
   }
 
   void deleteNote() {
-    if (_note == null) {
+    if (widget.note == null) {
       return;
     }
-    SQL.delete(db, [_note]);
+    SQL.delete(db, [widget.note]);
   }
 
   void init() async {
