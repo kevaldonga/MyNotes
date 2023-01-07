@@ -196,12 +196,16 @@ class _UserviewState extends State<Userview> {
   PopupMenuButton<Popupitem> accountpopup(BuildContext context) {
     return PopupMenuButton(
       icon: CircleAvatar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.green,
         child: getUserImage(),
       ),
       itemBuilder: (context) {
         return [
           // refresh
           PopupMenuItem(
+            enabled: true,
+            value: Popupitem.refresh,
             child: Row(
               children: const [
                 Padding(
@@ -217,11 +221,11 @@ class _UserviewState extends State<Userview> {
                 ),
               ],
             ),
-            enabled: true,
-            value: Popupitem.refresh,
           ),
           // verified
           PopupMenuItem(
+            enabled: true,
+            value: Popupitem.verify,
             child: Row(
               children: [
                 Padding(
@@ -235,11 +239,11 @@ class _UserviewState extends State<Userview> {
                     style: const TextStyle(fontFamily: "Quicksand")),
               ],
             ),
-            enabled: true,
-            value: Popupitem.verify,
           ),
           // change email
           PopupMenuItem(
+            enabled: true,
+            value: Popupitem.changeEmail,
             child: Row(
               children: const [
                 Padding(
@@ -255,11 +259,11 @@ class _UserviewState extends State<Userview> {
                 ),
               ],
             ),
-            enabled: true,
-            value: Popupitem.changeEmail,
           ),
           // chnage password
           PopupMenuItem(
+            enabled: true,
+            value: Popupitem.changePasscode,
             child: Row(
               children: const [
                 Padding(
@@ -275,11 +279,11 @@ class _UserviewState extends State<Userview> {
                 ),
               ],
             ),
-            enabled: true,
-            value: Popupitem.changePasscode,
           ),
           // log out
           PopupMenuItem(
+            enabled: true,
+            value: Popupitem.logOut,
             child: Row(
               children: const [
                 Padding(
@@ -295,8 +299,6 @@ class _UserviewState extends State<Userview> {
                 ),
               ],
             ),
-            enabled: true,
-            value: Popupitem.logOut,
           ),
         ];
       },
@@ -312,7 +314,7 @@ class _UserviewState extends State<Userview> {
               }
               String email = auth.currentUser?.email ?? "null";
               final isConfirmed = await createAlertDialogBox(context, "Confirm",
-                  "Email verification will be sent your email id - " + email);
+                  "Email verification will be sent your email id - $email");
               if (isConfirmed) {
                 EasyLoading.show(status: "sending");
                 var error = false;
@@ -320,15 +322,13 @@ class _UserviewState extends State<Userview> {
                   await auth.currentUser?.sendEmailVerification();
                 } on FirebaseAuthException catch (e) {
                   error = true;
+                  if (mounted) return;
                   createAlertDialogBox(context, "fatal error occurred", e.code);
                 }
                 if (!error) {
-                  createAlertDialogBox(
-                      context,
-                      "Sent",
-                      "Email verification to your email id " +
-                          email +
-                          " has been send !!");
+                  if (!mounted) return;
+                  createAlertDialogBox(context, "Sent",
+                      "Email verification to your email id $email has been send !!");
                 }
               }
               break;
@@ -374,11 +374,8 @@ class _UserviewState extends State<Userview> {
                             await auth.currentUser
                                 ?.updateEmail(newEmail)
                                 .whenComplete(() {
-                              createAlertDialogBox(
-                                  context,
-                                  "updated",
-                                  "Your email id has been updated to - " +
-                                      newEmail);
+                              createAlertDialogBox(context, "updated",
+                                  "Your email id has been updated to - $newEmail");
                             });
                           },
                           child: const Center(child: Text("change")),
@@ -478,12 +475,14 @@ class _UserviewState extends State<Userview> {
                                   context, "fatal error occurred", e.code);
                             }
                             if (!error) {
+                              if (!mounted) return;
                               await createAlertDialogBox(
                                   context,
                                   "signed out !!",
-                                  "You are signed out as " + email);
+                                  "You are signed out as $email");
                               log("database ${db.toString()} has been closed");
                               await db.close();
+                              if (!mounted) return;
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   "/Homepage/", (_) => false);
                             }
@@ -751,7 +750,8 @@ class _UserviewState extends State<Userview> {
           context, "We couldn't find specified term in any of notes");
     }
     return SliverPadding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate(
           ((context, index) {
@@ -893,23 +893,27 @@ class _UserviewState extends State<Userview> {
                   }
                 },
                 child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black.withOpacity(0.2)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Stack(
                     children: [
                       Visibility(
+                        visible: notes[indexInNotes].isSelected,
                         child: Container(
                           width: double.maxFinite,
                           height: double.maxFinite,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(138, 63, 160, 66),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: const Icon(
                             Icons.check,
                             color: Colors.white,
                             size: 40,
                           ),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(138, 63, 160, 66),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
                         ),
-                        visible: notes[indexInNotes].isSelected,
                       ),
                       Container(
                         margin: const EdgeInsets.only(
@@ -989,10 +993,6 @@ class _UserviewState extends State<Userview> {
                       ),
                     ],
                   ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black.withOpacity(0.2)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
                 ),
               ),
             ),
@@ -1046,8 +1046,9 @@ class _UserviewState extends State<Userview> {
 
   void selectAll(BuildContext context) {
     setState(() {
-      selectedNotes = notes;
+      // add notes to selected notes one ny one instead of referencing it
       for (int i = 0; i < notes.length; i++) {
+        selectedNotes.add(notes[i]);
         notes[i].setSelected = true;
       }
     });
@@ -1068,19 +1069,18 @@ class _UserviewState extends State<Userview> {
       for (int i = 0; i < selectedNotes.length; i++) {
         notes[notes.indexOf(selectedNotes[i])].setSelected = false;
         notes.remove(selectedNotes[i]);
-        if(searchtext.isNotEmpty) searchNotes.remove(selectedNotes[i]);
+        if (searchtext.isNotEmpty) searchNotes.remove(selectedNotes[i]);
       }
       selectedNotes = [];
     });
   }
 
   Widget getUserImage() {
-    String? url =
-        GoogleSignIn(scopes: ["email", "profile"]).currentUser?.photoUrl;
+    String? url = FirebaseAuth.instance.currentUser?.photoURL;
     if (url == null) {
-      return const Icon(Icons.face);
+      return const Icon(Icons.face, color: Colors.green);
     }
-    return Image.asset(url);
+    return ClipOval(child: Image.network(url));
   }
 
   void pinselectedNotes(BuildContext context) {
@@ -1128,7 +1128,8 @@ class _UserviewState extends State<Userview> {
   }
 
   void init() async {
-    EasyLoading.show(status: "getting notes",maskType: EasyLoadingMaskType.black);
+    EasyLoading.show(
+        status: "getting notes", maskType: EasyLoadingMaskType.black);
     db = await SQL.sqlinit(auth.currentUser?.email ?? "").then((value) async {
       notes = await SQL.downloadData(value);
       return value;

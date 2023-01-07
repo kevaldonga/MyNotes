@@ -1,7 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_notes/constants/Routes.dart';
@@ -126,9 +125,11 @@ class _loginState extends State<loginView> {
                         context, "Fatal error occured !!", e.toString());
                   }
                   if (!error) {
+                    if (!mounted) return;
                     final isCanceledYet = await createAlertDialogBox(context,
                         "signed in !!", "you have been signed as $email");
                     if (isCanceledYet) {
+                      if (!mounted) return;
                       Navigator.pushNamedAndRemoveUntil(
                           context, "/user_view/", (_) => false);
                     }
@@ -161,7 +162,7 @@ class _loginState extends State<loginView> {
       if (passcodeError) {
         return OutlineInputBorder(
             borderSide: BorderSide(
-          color: Theme.of(context).errorColor,
+          color: Theme.of(context).colorScheme.error,
           width: 2,
         ));
       } else if (!passcodeError) {
@@ -171,7 +172,7 @@ class _loginState extends State<loginView> {
     if (emailError) {
       return OutlineInputBorder(
           borderSide: BorderSide(
-        color: Theme.of(context).errorColor,
+        color: Theme.of(context).colorScheme.error,
         width: 2,
       ));
     } else if (!emailError) {
@@ -236,9 +237,11 @@ class _loginState extends State<loginView> {
             await FirebaseAuth.instance.signInWithCredential(credential);
         user = result.user;
       } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
         createAlertDialogBox(context, "Unhandled error", e.code);
       }
       if (user != null) {
+        if (!mounted) return;
         createAlertDialogBox(context, "signed in successfully",
             "you have signed in with ${user.email} successfully !!");
         Navigator.pushNamedAndRemoveUntil(
@@ -273,7 +276,7 @@ class _loginState extends State<loginView> {
                 margin: const EdgeInsets.all(10),
                 child: Text(
                   info,
-                  style: Theme.of(context).textTheme.button,
+                  style: Theme.of(context).textTheme.labelLarge,
                 )),
           ),
         ),

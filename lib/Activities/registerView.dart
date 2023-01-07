@@ -90,43 +90,46 @@ class _registerState extends State<registerView> {
                 // Button
                 onPressed: () async {
                   if (email.isEmpty || passcode.isEmpty) {
-                    createAlertDialogBox(context,"Fields empty !!",
+                    createAlertDialogBox(context, "Fields empty !!",
                         "Please fill up empty fields before signing in !!");
                     return;
                   }
                   if ((emailError || passcodeError) ||
                       (emailError && passcodeError)) {
-                    createAlertDialogBox(context,"Fix errors !!",
+                    createAlertDialogBox(context, "Fix errors !!",
                         "Please fix up displayed errors !!");
                     return;
                   }
                   var error = false;
                   try {
                     EasyLoading.show(status: "creating");
-                    await FirebaseAuth.instance
-                        .createUserWithEmailAndPassword(
-                            email: email, password: passcode);
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                        email: email, password: passcode);
                   } on FirebaseAuthException catch (e) {
                     error = true;
                     if (e.code == "email-already-in-use") {
-                      createAlertDialogBox(context,"Already exist !!",
+                      createAlertDialogBox(context, "Already exist !!",
                           "This email is already in use !!");
-                    }
-                    else{
-                      createAlertDialogBox(context,
-                        "Fatal error occured !!", e.toString());
+                    } else {
+                      createAlertDialogBox(
+                          context, "Fatal error occured !!", e.toString());
                     }
                   } catch (e) {
                     error = true;
-                    createAlertDialogBox(context,
-                        "Fatal error occured !!", e.toString());
+                    createAlertDialogBox(
+                        context, "Fatal error occured !!", e.toString());
                   }
-                  if(!error){
-                    final isCanceledYet = await createAlertDialogBox(context,"account created",
-                     "Your account created successfuly !!");
-                     if(isCanceledYet){
-                      Navigator.pushNamedAndRemoveUntil(context, "/user_view/", (_) => false);
-                     }
+                  if (!error) {
+                    if (!mounted) return;
+                    final isCanceledYet = await createAlertDialogBox(
+                        context,
+                        "account created",
+                        "Your account created successfuly !!");
+                    if (isCanceledYet) {
+                      if (!mounted) return;
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, "/user_view/", (_) => false);
+                    }
                   }
                 },
                 child: const Text("Register"),
@@ -143,7 +146,7 @@ class _registerState extends State<registerView> {
       if (passcodeError) {
         return OutlineInputBorder(
             borderSide: BorderSide(
-              color: Theme.of(context).errorColor,
+          color: Theme.of(context).colorScheme.error,
           width: 2,
         ));
       } else if (!passcodeError) {
@@ -153,7 +156,7 @@ class _registerState extends State<registerView> {
     if (emailError) {
       return OutlineInputBorder(
           borderSide: BorderSide(
-            color: Theme.of(context).errorColor,
+        color: Theme.of(context).colorScheme.error,
         width: 2,
       ));
     } else if (!emailError) {

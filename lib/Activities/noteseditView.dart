@@ -266,6 +266,7 @@ class _NoteseditviewState extends State<Noteseditview>
         return [
           // pin
           PopupMenuItem(
+            value: Info.pinned,
             child: SizedBox(
               width: size.width * 0.3,
               child: Row(
@@ -283,10 +284,10 @@ class _NoteseditviewState extends State<Noteseditview>
                 ],
               ),
             ),
-            value: Info.pinned,
           ),
           // delete
           PopupMenuItem(
+            value: Info.delete,
             child: Row(
               children: const [
                 Padding(
@@ -299,10 +300,10 @@ class _NoteseditviewState extends State<Noteseditview>
                 Text("delete"),
               ],
             ),
-            value: Info.delete,
           ),
           // details
           PopupMenuItem(
+            value: Info.style,
             child: Row(
               children: const [
                 Padding(
@@ -312,7 +313,6 @@ class _NoteseditviewState extends State<Noteseditview>
                 Text("style"),
               ],
             ),
-            value: Info.style,
           ),
         ];
       },
@@ -330,8 +330,10 @@ class _NoteseditviewState extends State<Noteseditview>
                 contents: "",
                 uid: "null",
                 modifiedAt: DateTime.now());
-            if (await confirmation(
-                context, "Are you sure you want to delete this note ?")) {
+            bool result = await confirmation(
+                context, "Are you sure you want to delete this note ?");
+            if (result) {
+              if (!mounted) return;
               Navigator.of(context).pop(widget.note);
             }
             break;
@@ -365,10 +367,9 @@ class _NoteseditviewState extends State<Noteseditview>
           child: Column(
             children: [
               Text(
-                "last modified at " +
-                    DateFormat("dd-MM-yyyy hh:mm a").format(
-                      widget.note?.getModifiedAt ?? DateTime.now(),
-                    ),
+                "last modified at ${DateFormat("dd-MM-yyyy hh:mm a").format(
+                  widget.note?.getModifiedAt ?? DateTime.now(),
+                )}",
                 style: const TextStyle(
                   fontSize: 15,
                   fontFamily: "Ubuntu",
@@ -438,10 +439,9 @@ class _NoteseditviewState extends State<Noteseditview>
           height: MediaQuery.of(context).size.height * 0.06,
           width: double.maxFinite,
           child: Text(
-            "created at " +
-                DateFormat("dd-MM-yyyy hh:mm a").format(
-                  widget.note?.getCreatedAt ?? DateTime.now(),
-                ),
+            "created at ${DateFormat("dd-MM-yyyy hh:mm a").format(
+              widget.note?.getCreatedAt ?? DateTime.now(),
+            )}",
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,
@@ -678,7 +678,7 @@ class _NoteseditviewState extends State<Noteseditview>
   }
 
   Future<Color?> colorpicker(BuildContext context) {
-    Color _currentcolor = getpickedcolor();
+    Color currentcolor = getpickedcolor();
     return showDialog<Color>(
         barrierDismissible: false,
         context: context,
@@ -697,7 +697,7 @@ class _NoteseditviewState extends State<Noteseditview>
                 labelTypes: const [ColorLabelType.hex, ColorLabelType.rgb],
                 pickerColor: getpickedcolor(),
                 onColorChanged: (value) {
-                  _currentcolor = value;
+                  currentcolor = value;
                 },
               ),
             ),
@@ -713,7 +713,7 @@ class _NoteseditviewState extends State<Noteseditview>
                           borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
-                  onPressed: () => Navigator.of(context).pop(_currentcolor),
+                  onPressed: () => Navigator.of(context).pop(currentcolor),
                   child: const Text(
                     "pick",
                     style: TextStyle(fontFamily: "Ubuntu", fontSize: 20),

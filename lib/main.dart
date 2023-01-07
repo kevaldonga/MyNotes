@@ -24,10 +24,6 @@ class MyApp extends StatelessWidget {
       title: "My Notes",
       home: const Homepage(),
       theme: ThemeData(
-        primarySwatch: Colors.green,
-        // ignore: deprecated_member_use
-        accentColor: Colors.lightGreen.shade600,
-        errorColor: const Color.fromARGB(255, 0, 90, 3),
         brightness: Brightness.light,
         cardColor: const Color.fromARGB(255, 236, 251, 237),
         scaffoldBackgroundColor: const Color.fromARGB(255, 247, 255, 247),
@@ -41,12 +37,12 @@ class MyApp extends StatelessWidget {
         ),
         textTheme: const TextTheme(
           // textfield text
-          subtitle1: TextStyle(
+          titleMedium: TextStyle(
             fontFamily: "Quicksand",
             fontWeight: FontWeight.w500,
           ),
           //textfield text
-          button: TextStyle(
+          labelLarge: TextStyle(
             fontFamily: "Ubuntu",
             fontWeight: FontWeight.w400,
           ),
@@ -83,6 +79,9 @@ class MyApp extends StatelessWidget {
             fontFamily: "Ubuntu",
           ),
         ),
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.green)
+            .copyWith(secondary: Colors.lightGreen.shade600)
+            .copyWith(error: const Color.fromARGB(255, 0, 90, 3)),
       ),
       debugShowCheckedModeBanner: false,
       builder: EasyLoading.init(),
