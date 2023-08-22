@@ -1,15 +1,18 @@
 import 'dart:developer' show log;
+
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:my_notes/Activities/noteseditView.dart';
+import 'package:my_notes/constants/Routes.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:substring_highlight/substring_highlight.dart';
+
+import '../essential classes/Note.dart';
 import '../essential classes/sqllite.dart';
 import '../reusable%20widgets/create_alertdialog.dart';
-import 'package:substring_highlight/substring_highlight.dart';
-import '../essential classes/Note.dart';
 
 class Userview extends StatefulWidget {
   const Userview({Key? key}) : super(key: key);
@@ -203,11 +206,11 @@ class _UserviewState extends State<Userview> {
       itemBuilder: (context) {
         return [
           // refresh
-          PopupMenuItem(
+          const PopupMenuItem(
             enabled: true,
             value: Popupitem.refresh,
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
@@ -241,11 +244,11 @@ class _UserviewState extends State<Userview> {
             ),
           ),
           // change email
-          PopupMenuItem(
+          const PopupMenuItem(
             enabled: true,
             value: Popupitem.changeEmail,
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
@@ -261,11 +264,11 @@ class _UserviewState extends State<Userview> {
             ),
           ),
           // chnage password
-          PopupMenuItem(
+          const PopupMenuItem(
             enabled: true,
             value: Popupitem.changePasscode,
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
@@ -281,11 +284,11 @@ class _UserviewState extends State<Userview> {
             ),
           ),
           // log out
-          PopupMenuItem(
+          const PopupMenuItem(
             enabled: true,
             value: Popupitem.logOut,
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
@@ -483,8 +486,7 @@ class _UserviewState extends State<Userview> {
                               log("database ${db.toString()} has been closed");
                               await db.close();
                               if (!mounted) return;
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                  "/Homepage/", (_) => false);
+                              context.go(Routes.HOMEPAGE);
                             }
                           },
                           child: const Text("Yes"),
@@ -498,7 +500,7 @@ class _UserviewState extends State<Userview> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.pop(context);
+                              context.pop();
                             },
                             child: const Text("cancel")),
                       ],
@@ -716,12 +718,7 @@ class _UserviewState extends State<Userview> {
       child: FloatingActionButton(
         elevation: 10,
         onPressed: () async {
-          _currentNote = await Navigator.push(
-            context,
-            MaterialPageRoute<Note>(builder: (context) {
-              return Noteseditview();
-            }),
-          );
+          _currentNote = await context.push(Routes.NOTES_EDITVIEW);
           if ((_currentNote?.getTitle == "" &&
                   _currentNote?.getContents == "") ||
               _currentNote == null) {
@@ -859,15 +856,8 @@ class _UserviewState extends State<Userview> {
                     return;
                   } else {
                     if (!selection) {
-                      _currentNote = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return Noteseditview.getNote(
-                                note: notes[indexInNotes]);
-                          },
-                        ),
-                      );
+                      _currentNote = await context.push(Routes.NOTES_EDITVIEW,
+                          extra: notes[indexInNotes]);
                       if ((_currentNote?.getTitle == "" &&
                               _currentNote?.getContents == "") ||
                           _currentNote == null) {

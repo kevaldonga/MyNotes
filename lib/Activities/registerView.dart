@@ -2,6 +2,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_notes/constants/Routes.dart';
 import 'package:my_notes/reusable%20widgets/create_alertdialog.dart';
 
 class registerView extends StatefulWidget {
@@ -127,8 +129,7 @@ class _registerState extends State<registerView> {
                         "Your account created successfuly !!");
                     if (isCanceledYet) {
                       if (!mounted) return;
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, "/user_view/", (_) => false);
+                      context.go(Routes.USER_ACTIVITY);
                     }
                   }
                 },

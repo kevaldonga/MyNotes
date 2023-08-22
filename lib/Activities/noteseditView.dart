@@ -1,19 +1,20 @@
 import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:my_notes/constants/Routes.dart';
-import 'package:sqflite/sqflite.dart';
-import '../essential classes/Note.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:my_notes/constants/Routes.dart';
 import 'package:solid_bottom_sheet/solid_bottom_sheet.dart';
+import 'package:sqflite/sqflite.dart';
 
+import '../essential classes/Note.dart';
 import '../essential classes/sqllite.dart';
 
 class Noteseditview extends StatefulWidget {
   Note? note;
-  Noteseditview({Key? key}) : super(key: key);
-  Noteseditview.getNote({Key? key, this.note}) : super(key: key);
+  Noteseditview({Key? key, this.note}) : super(key: key);
 
   @override
   State<Noteseditview> createState() => _NoteseditviewState();
@@ -118,6 +119,8 @@ class _NoteseditviewState extends State<Noteseditview>
         saveNote();
         break;
       case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
         break;
     }
   }
@@ -286,10 +289,10 @@ class _NoteseditviewState extends State<Noteseditview>
             ),
           ),
           // delete
-          PopupMenuItem(
+          const PopupMenuItem(
             value: Info.delete,
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
@@ -302,10 +305,10 @@ class _NoteseditviewState extends State<Noteseditview>
             ),
           ),
           // details
-          PopupMenuItem(
+          const PopupMenuItem(
             value: Info.style,
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(Icons.edit_note_rounded),
@@ -334,7 +337,7 @@ class _NoteseditviewState extends State<Noteseditview>
                 context, "Are you sure you want to delete this note ?");
             if (result) {
               if (!mounted) return;
-              Navigator.of(context).pop(widget.note);
+              context.pop(widget.note);
             }
             break;
           case Info.pinned:
@@ -367,9 +370,7 @@ class _NoteseditviewState extends State<Noteseditview>
           child: Column(
             children: [
               Text(
-                "last modified at ${DateFormat("dd-MM-yyyy hh:mm a").format(
-                  widget.note?.getModifiedAt ?? DateTime.now(),
-                )}",
+                "last modified at ${DateFormat("dd-MM-yyyy hh:mm a").format(widget.note?.getModifiedAt ?? DateTime.now())}",
                 style: const TextStyle(
                   fontSize: 15,
                   fontFamily: "Ubuntu",
@@ -592,7 +593,7 @@ class _NoteseditviewState extends State<Noteseditview>
                 ),
                 onPressed: () {
                   deleteNote();
-                  Navigator.of(ctx).pop(true);
+                  ctx.pop(true);
                 },
                 child: const Text("delete"),
               ),
@@ -604,7 +605,7 @@ class _NoteseditviewState extends State<Noteseditview>
                   ),
                 ),
                 onPressed: () {
-                  Navigator.of(ctx).pop(false);
+                  ctx.pop(false);
                 },
                 child: const Text("go back"),
               ),
@@ -622,10 +623,10 @@ class _NoteseditviewState extends State<Noteseditview>
       if (await confirmation(
           context, "You will lose this note as it has no contents !!")) {
         deleteNote();
-        Navigator.of(context).pop(widget.note);
+        context.pop(widget.note);
       }
     } else {
-      Navigator.of(context).pop(widget.note);
+      context.pop(widget.note);
     }
   }
 
@@ -713,7 +714,7 @@ class _NoteseditviewState extends State<Noteseditview>
                           borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
-                  onPressed: () => Navigator.of(context).pop(currentcolor),
+                  onPressed: () => context.pop(currentcolor),
                   child: const Text(
                     "pick",
                     style: TextStyle(fontFamily: "Ubuntu", fontSize: 20),
