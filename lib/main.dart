@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_notes/Activities/Homepage.dart';
-import 'package:my_notes/Activities/noteseditView.dart';
-import 'package:my_notes/essential%20classes/Note.dart';
+import 'package:my_notes/Activities/home_page.dart';
+import 'package:my_notes/Activities/notesedit_view.dart';
+import 'package:my_notes/essential%20classes/note.dart';
 
-import './Activities/loginView.dart';
-import './Activities/registerView.dart';
+import 'Activities/login_view.dart';
+import 'Activities/register_view.dart';
 import './Activities/user_view.dart';
-import './constants/Routes.dart';
+import 'constants/routes.dart';
 import './other/firebase_options.dart';
 
 void main() async {
@@ -20,30 +20,30 @@ void main() async {
   runApp(const MyApp());
 }
 
-GoRouter _router = GoRouter(initialLocation: Routes.HOMEPAGE, routes: <GoRoute>[
+GoRouter _router = GoRouter(initialLocation: Routes.homePage, routes: <GoRoute>[
   GoRoute(
       name: "Loginview",
-      path: Routes.LOGIN_VIEW,
+      path: Routes.loginView,
       builder: (BuildContext context, GoRouterState state) =>
-          const loginView()),
+          const LoginView()),
   GoRoute(
       name: "Homepage",
-      path: Routes.HOMEPAGE,
+      path: Routes.homePage,
       builder: (BuildContext context, GoRouterState state) => const Homepage()),
   GoRoute(
       name: "Regiterview",
-      path: Routes.REGISTER_VIEW,
+      path: Routes.registerView,
       builder: (BuildContext context, GoRouterState state) =>
-          const registerView()),
+          const RegisterView()),
   GoRoute(
       name: "NoteseditView",
-      path: Routes.NOTES_EDITVIEW,
+      path: Routes.notesEditView,
       builder: (BuildContext context, GoRouterState state) {
         return Noteseditview(note: state.extra as Note?);
       }),
   GoRoute(
       name: "Userview",
-      path: Routes.USER_ACTIVITY,
+      path: Routes.userActivity,
       builder: (BuildContext context, GoRouterState state) => const Userview())
 ]);
 

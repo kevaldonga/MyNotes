@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
-import 'Note.dart';
+import 'note.dart';
 
 class SQL {
   static Future<Database> sqlinit(String email) async {

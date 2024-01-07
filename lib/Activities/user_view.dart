@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:my_notes/constants/Routes.dart';
+import 'package:my_notes/constants/routes.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:substring_highlight/substring_highlight.dart';
 
-import '../essential classes/Note.dart';
+import '../essential classes/note.dart';
 import '../essential classes/sqllite.dart';
 import '../reusable%20widgets/create_alertdialog.dart';
 
@@ -325,7 +325,7 @@ class _UserviewState extends State<Userview> {
                   await auth.currentUser?.sendEmailVerification();
                 } on FirebaseAuthException catch (e) {
                   error = true;
-                  if (mounted) return;
+                  if (!mounted) return;
                   createAlertDialogBox(context, "fatal error occurred", e.code);
                 }
                 if (!error) {
@@ -474,6 +474,7 @@ class _UserviewState extends State<Userview> {
                               await GoogleSignIn().signOut();
                             } on FirebaseException catch (e) {
                               error = true;
+                              if (!mounted) return;
                               createAlertDialogBox(
                                   context, "fatal error occurred", e.code);
                             }
@@ -486,7 +487,7 @@ class _UserviewState extends State<Userview> {
                               log("database ${db.toString()} has been closed");
                               await db.close();
                               if (!mounted) return;
-                              context.go(Routes.HOMEPAGE);
+                              context.go(Routes.homePage);
                             }
                           },
                           child: const Text("Yes"),
@@ -718,7 +719,7 @@ class _UserviewState extends State<Userview> {
       child: FloatingActionButton(
         elevation: 10,
         onPressed: () async {
-          _currentNote = await context.push(Routes.NOTES_EDITVIEW);
+          _currentNote = await context.push(Routes.notesEditView);
           if ((_currentNote?.getTitle == "" &&
                   _currentNote?.getContents == "") ||
               _currentNote == null) {
@@ -856,7 +857,7 @@ class _UserviewState extends State<Userview> {
                     return;
                   } else {
                     if (!selection) {
-                      _currentNote = await context.push(Routes.NOTES_EDITVIEW,
+                      _currentNote = await context.push(Routes.notesEditView,
                           extra: notes[indexInNotes]);
                       if ((_currentNote?.getTitle == "" &&
                               _currentNote?.getContents == "") ||

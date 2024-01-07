@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:my_notes/constants/Routes.dart';
+import 'package:my_notes/constants/routes.dart';
 import 'package:solid_bottom_sheet/solid_bottom_sheet.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../essential classes/Note.dart';
+import '../essential classes/note.dart';
 import '../essential classes/sqllite.dart';
 
 class Noteseditview extends StatefulWidget {
-  Note? note;
-  Noteseditview({Key? key, this.note}) : super(key: key);
+  final Note? note;
+  const Noteseditview({Key? key, this.note}) : super(key: key);
 
   @override
   State<Noteseditview> createState() => _NoteseditviewState();
@@ -37,6 +37,7 @@ class _NoteseditviewState extends State<Noteseditview>
     "title": Colors.black,
     "content": Colors.black
   };
+  late Note? note;
   final List<Color> colors = [
     // ignore: prefer_const_constructors
     Color.fromARGB(254, 255, 255, 255),
@@ -57,11 +58,10 @@ class _NoteseditviewState extends State<Noteseditview>
   bool isupdated = true;
   late Database db;
 
-  _NoteseditviewState();
-
   @override
   void initState() {
     super.initState();
+    note = widget.note;
     WidgetsBinding.instance.addObserver(this);
     init();
     setState(() {
@@ -128,12 +128,12 @@ class _NoteseditviewState extends State<Noteseditview>
   @override
   Widget build(BuildContext ctx) {
     final Size size = MediaQuery.of(ctx).size;
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (value) async {
         FocusScope.of(ctx).unfocus();
         if (_solidController.isOpened) _solidController.hide();
         _backpressed();
-        return false;
       },
       child: Scaffold(
         bottomSheet: Card(
@@ -190,7 +190,7 @@ class _NoteseditviewState extends State<Noteseditview>
                   ),
                 ),
                 Hero(
-                  tag: widget.note ?? Tags.Default,
+                  tag: widget.note ?? Tags.primary,
                   child: Container(
                     height: size.height * 0.77,
                     padding: EdgeInsets.only(
@@ -328,7 +328,7 @@ class _NoteseditviewState extends State<Noteseditview>
         FocusScope.of(context).unfocus();
         switch (val) {
           case Info.delete:
-            widget.note = Note(
+            note = Note(
                 title: "",
                 contents: "",
                 uid: "null",
@@ -623,6 +623,7 @@ class _NoteseditviewState extends State<Noteseditview>
       if (await confirmation(
           context, "You will lose this note as it has no contents !!")) {
         deleteNote();
+        if (!mounted) return;
         context.pop(widget.note);
       }
     } else {
@@ -637,7 +638,7 @@ class _NoteseditviewState extends State<Noteseditview>
       return;
     }
     setState(() {
-      widget.note = Note(
+      note = Note(
         uid: FirebaseAuth.instance.currentUser?.uid ?? "12345",
         title: _title.text,
         contents: _content.text,

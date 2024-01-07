@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:my_notes/constants/Routes.dart';
+import 'package:my_notes/constants/routes.dart';
 import 'package:my_notes/reusable%20widgets/create_alertdialog.dart';
 
-class loginView extends StatefulWidget {
-  const loginView({Key? key}) : super(key: key);
+class LoginView extends StatefulWidget {
+  const LoginView({Key? key}) : super(key: key);
 
   @override
-  State<loginView> createState() => _loginState();
+  State<LoginView> createState() => _LoginState();
 }
 
-class _loginState extends State<loginView> {
+class _LoginState extends State<LoginView> {
   late String email, passcode;
   late bool emailError, passcodeError;
   String? emailErrorText, asscodeErrorText;
@@ -112,6 +112,7 @@ class _loginState extends State<loginView> {
                           email: email, password: passcode);
                     } on FirebaseException catch (e) {
                       error = true;
+                      if (!mounted) return;
                       if (e.code == "user-not-found") {
                         createAlertDialogBox(
                             context, "invalid", "Entered email is invalid !!");
@@ -124,6 +125,7 @@ class _loginState extends State<loginView> {
                       }
                     } catch (e) {
                       error = true;
+                      if (!mounted) return;
                       createAlertDialogBox(
                           context, "Fatal error occured !!", e.toString());
                     }
@@ -133,7 +135,7 @@ class _loginState extends State<loginView> {
                           "signed in !!", "you have been signed as $email");
                       if (isCanceledYet) {
                         if (!mounted) return;
-                        context.go(Routes.USER_ACTIVITY);
+                        context.go(Routes.userActivity);
                       }
                     }
                   },
@@ -144,7 +146,7 @@ class _loginState extends State<loginView> {
             Center(
               child: TextButton(
                 onPressed: () {
-                  context.push(Routes.REGISTER_VIEW);
+                  context.push(Routes.registerView);
                 },
                 child: const Text("create a account"),
               ),
@@ -247,7 +249,7 @@ class _loginState extends State<loginView> {
         if (!mounted) return;
         createAlertDialogBox(context, "signed in successfully",
             "you have signed in with ${user.email} successfully !!");
-        context.go(Routes.USER_ACTIVITY);
+        context.go(Routes.userActivity);
       }
     }
     EasyLoading.dismiss();

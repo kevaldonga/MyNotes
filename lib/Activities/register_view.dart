@@ -3,17 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_notes/constants/Routes.dart';
+import 'package:my_notes/constants/routes.dart';
 import 'package:my_notes/reusable%20widgets/create_alertdialog.dart';
 
-class registerView extends StatefulWidget {
-  const registerView({Key? key}) : super(key: key);
+class RegisterView extends StatefulWidget {
+  const RegisterView({Key? key}) : super(key: key);
 
   @override
-  State<registerView> createState() => _registerState();
+  State<RegisterView> createState() => _RegisterState();
 }
 
-class _registerState extends State<registerView> {
+class _RegisterState extends State<RegisterView> {
   late String email, passcode;
   late bool emailError, passcodeError;
   String? emailErrorText, asscodeErrorText;
@@ -109,6 +109,7 @@ class _registerState extends State<registerView> {
                         email: email, password: passcode);
                   } on FirebaseAuthException catch (e) {
                     error = true;
+                    if (!mounted) return;
                     if (e.code == "email-already-in-use") {
                       createAlertDialogBox(context, "Already exist !!",
                           "This email is already in use !!");
@@ -118,6 +119,7 @@ class _registerState extends State<registerView> {
                     }
                   } catch (e) {
                     error = true;
+                    if (!mounted) return;
                     createAlertDialogBox(
                         context, "Fatal error occured !!", e.toString());
                   }
@@ -129,7 +131,7 @@ class _registerState extends State<registerView> {
                         "Your account created successfuly !!");
                     if (isCanceledYet) {
                       if (!mounted) return;
-                      context.go(Routes.USER_ACTIVITY);
+                      context.go(Routes.userActivity);
                     }
                   }
                 },
